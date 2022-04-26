@@ -1,6 +1,10 @@
 // Generare una griglia di gioco quadrata in cui ogni cella contiene un numero compreso tra 1 e 100.
 // Quando l'utente clicca su ogni cella, la cella cliccata si colora di azzurro.
-
+// Il computer deve generare 16 numeri casuali nello stesso range della difficoltà prescelta: le bombe.
+// I numeri nella lista delle bombe non possono essere duplicati.
+// In seguito l'utente clicca su una cella: se il numero è presente nella lista dei numeri generati - abbiamo calpestato una bomba - la cella si colora di rosso e la partita termina, altrimenti la cella cliccata si colora di azzurro e l'utente può continuare a cliccare sulle altre celle.
+// La partita termina quando il giocatore clicca su una bomba o raggiunge il numero massimo possibile di numeri consentiti.
+// Al termine della partita il software deve comunicare il punteggio, cioè il numero di volte che l’utente ha cliccato su una cella che non era una bomba.
 
 document.getElementById("play").addEventListener("click", startGame);
 
@@ -13,55 +17,57 @@ function startGame() {
     // Aggiungo la classe hidden all'h2 e la rimuovo dalla griglia per mostrarla
     titleChoice.classList.add("hidden");
     grid.classList.remove("hidden");
+    grid.innerHTML = "";
     
-    
-    
-    const gridSize = 100;
-    const gridArray = generateGridNumber(gridSize);
-
-
-    // Creo grid item
-    const gridContainer = document.querySelector(".grid-container");
-    gridContainer.innerHTML = "";
-
-    for (let i = 0; i < gridArray.length; i++) {
-        const thisNumber = gridArray[i];
-        console.log(thisNumber);
-
-        const domElement = generateGridItem(thisNumber)
-
-        // Al click
-        domElement.addEventListener("click", function() {
-            this.classList.add("active");
-        });
-
-        // Appendo elemento
-        gridContainer.append(domElement);
+    // In base alla scelta dell'utente sulla difficoltà definisco numero di celle della griglia
+    const level = parseInt(document.getElementById("level").value);
+    let cellNumber;
+    let cellRow;
+    if (level === 1) {
+        cellNumber = 100;
+        cellRow = 10;
+    } else if (level === 2) {
+        cellNumber = 81;
+        cellRow = 9;
+    } else {
+        cellNumber = 49;
+        cellRow = 7;
     }
-}
-
-function generateGridNumber(gridNumberQuantity) {
-    const numberArray = [];
-
-    // Con ciclo for creo numeri da 1 a 100
-    for (let i = 1; i <= 100; i++) {
-        const singleNumber = i;
-
-       numberArray.push(singleNumber);
+    
+    for (let i = 1; i <= cellNumber; i ++) {
+        const newItem = generateGridItem(i, cellRow);
+        newItem.addEventListener("click", handleCellClick);
+        grid.append(newItem);
     }
 
-    console.log(numberArray);
-
-    return numberArray;
-    
 }
 
-function generateGridItem(number) {
-    const newElement = document.createElement("div");
-    console.log(newElement);
-    newElement.innerHTML = `<span>${number}</span>`
-    newElement.classList.add("grid-item");
+// Creo array vuoto delle bombe 
+const bombArray = [];
 
-    return newElement;
+// Genero 16 numeri random che non si devono ripetere e man mano li aggiungo nell'array delle bombe
+const rndNumber = getRndInteger()
+    
 
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * 100) + 1;
+  }
+
+console.log(rndNumber);
+
+
+function handleCellClick() {
+    this.classList.add("active");
+}
+
+
+// Creazione dell'elemento nella griglia
+function generateGridItem(gridNumber, cellsInRow) {
+    const gridItem = document.createElement("div");
+    gridItem.classList.add("grid-item");
+    gridItem.style.width = `calc(100% / ${cellsInRow})`;
+    gridItem.style.height = `calc(100% / ${cellsInRow})`;
+    gridItem.innerHTML = `<span>${gridNumber}</span>`
+
+    return gridItem;
 }
